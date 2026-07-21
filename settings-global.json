@@ -1,0 +1,15 @@
+{
+  "_comment": "Moved to templates/claude-code/settings-global.json — used by scripts/install-claude-code.sh",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__HOOK_SCRIPT__"
+          }
+        ]
+      }
+    ]
+  }
+}
