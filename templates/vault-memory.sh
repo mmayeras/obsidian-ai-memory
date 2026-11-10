@@ -20,13 +20,25 @@ echo
 echo '--- Next Session handoff ---'
 cat "$V/AI-Memory/Next Session.md" 2>/dev/null || true
 echo
-echo '--- Vault Map ---'
-cat "$V/AI-Memory/Vault Map.md" 2>/dev/null || echo '(run onboard in the vault first)'
+# Vault Map is not injected (token cost): agents read it on demand before searching or filing.
+if [ -f "$V/AI-Memory/Vault Map.md" ]; then
+  echo "--- Vault Map: $V/AI-Memory/Vault Map.md (read before searching the vault or filing a note) ---"
+else
+  echo '--- Vault Map: MISSING (run onboard in the vault first) ---'
+fi
 echo
 echo "--- Today's daily note ($(date +%Y-%m-%d)) ---"
 DN=$(find "$V" -name "*$(date +%Y-%m-%d)*.md" \
   -not -path '*/.*' -not -path '*/AI-Memory/*' -not -path '*/templates/*' 2>/dev/null | head -1)
-if [ -n "$DN" ]; then cat "$DN"; else echo '(not created yet)'; fi
+# Cap the daily note: long meeting notes would otherwise be injected in full every session.
+MAX_DAILY_LINES="${OBSIDIAN_AI_MEMORY_MAX_DAILY_LINES:-60}"
+if [ -n "$DN" ]; then
+  head -n "$MAX_DAILY_LINES" "$DN"
+  TOTAL=$(wc -l < "$DN" | tr -d ' ')
+  [ "$TOTAL" -le "$MAX_DAILY_LINES" ] || echo "(... $((TOTAL - MAX_DAILY_LINES)) more lines: read $DN)"
+else
+  echo '(not created yet)'
+fi
 echo
 echo '--- Vault projects ---'
 ls "$V/AI-Memory/Projects/" 2>/dev/null || true

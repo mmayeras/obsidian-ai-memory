@@ -58,4 +58,4 @@ for skill_dir in "$OBSIDIAN_AI_MEMORY_ROOT/templates/cursor/skills/"*/; do
 done
 
 info "Cursor global memory installed. Vault: $VAULT"
-info "  Restart Cursor if it is open. Say 'startup' if memory table is missing."
+info "  Restart Cursor if it is open. Say 'startup' if memory seems missing."

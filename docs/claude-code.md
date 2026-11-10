@@ -59,14 +59,14 @@ claude
 
 On session start:
 
-1. Hook injects Memory, Next Session, Vault Map, today's daily, project list
-2. Agent prints startup table, then answers
+1. Hook injects Memory, Next Session, today's daily, project list (Vault Map is read on demand, not injected)
+2. Agent reads it silently and answers directly (no startup table)
 
 | Phrase | Effect |
 |--------|--------|
 | remember this | Append to vault note |
 | wrap up | Full handoff workflow |
-| startup | Reload table on demand |
+| startup | Reload memory, 3-line status |
 
 ## Vault advisor mode
 

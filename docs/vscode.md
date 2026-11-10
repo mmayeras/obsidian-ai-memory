@@ -20,7 +20,7 @@ Memory loads via the global Claude Code SessionStart hook — same behavior as r
 
 - **remember this** — save to vault
 - **wrap up** — end-of-session handoff
-- **startup** — reload memory table
+- **startup** — reload memory if it seems missing (3-line status)
 
 ## Notes
 

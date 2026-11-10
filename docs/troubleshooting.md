@@ -4,8 +4,10 @@
 
 | Symptom | Fix |
 |---------|-----|
-| No startup table | Normal occasionally — model behavior. Say **startup** to force it. Hook injection is separate and may still have loaded memory. |
-| "run onboard" in table | Run onboard once: `/onboard` (Claude Code) or "onboard my vault" (Cursor) |
+| Agent seems unaware of memory | Say **startup**: it reloads and replies with a 3-line status. No startup table by design. |
+| Assistant still prints a startup table | Old rules somewhere. Vault: `bash scripts/install-vault.sh "/path/to/vault" --update-rules`. claude.ai: rebuild and re-upload the skills ([claude.ai](claude-ai.md)). |
+| Codex ignores the vault | Restart Codex and approve the vault hook when asked. Check `~/.codex/hooks.json` uses an absolute path to `~/.codex/hooks/vault-memory.sh` (re-run `bash scripts/install-codex.sh`). |
+| Agent says Vault Map is missing | Run onboard once: `/onboard` (Claude Code) or "onboard my vault" (Cursor) |
 | Wrong vault path | Re-run `bash install.sh --vault "/correct/path with spaces"` |
 | Re-install safe | All installers are idempotent; backups written as `*.bak` |
 

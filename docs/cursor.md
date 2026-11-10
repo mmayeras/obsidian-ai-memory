@@ -39,7 +39,7 @@ Open a code project in Cursor and use Agent chat.
 
 Cursor uses three layers because `sessionStart` hook injection can be unreliable:
 
-1. **User rule** — instructs agent to read `AI-Memory/Memory.md`, `Next Session.md`, `Vault Map.md`, and today's daily via Obsidian MCP (or Read tool) if the startup table is empty
+1. **User rule** — instructs agent to read `AI-Memory/Memory.md`, `Next Session.md`, and today's daily via Obsidian MCP (or Read tool) if the hook injected nothing
 2. **sessionStart hook** — best-effort injection of the same content
 3. **You say "startup"** — force reload on demand
 
@@ -49,7 +49,7 @@ Cursor uses three layers because `sessionStart` hook injection can be unreliable
 |--------|--------|
 | remember this | Append via MCP or shell |
 | wrap up | Triggers vault-wrap-up skill |
-| startup | Reload memory and print table |
+| startup | Reload memory, 3-line status |
 | onboard my vault | vault-onboard skill |
 | organize my vault | vault-organize skill |
 | rewrite vault notes | vault-rewrite skill |

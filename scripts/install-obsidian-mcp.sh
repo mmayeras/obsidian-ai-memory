@@ -2,13 +2,14 @@
 # Configure the Obsidian MCP server for Cursor and/or Claude Code.
 #   Cursor      -> merged into ~/.cursor/mcp.json (JSON edit).
 #   Claude Code -> `claude mcp add -s user` (user scope, available in every repo).
-# Usage: bash install-obsidian-mcp.sh /absolute/path/to/vault [cursor|claude-code|both]
+#   Codex       -> `codex mcp add`, or a [mcp_servers.obsidian] table in ~/.codex/config.toml.
+# Usage: bash install-obsidian-mcp.sh /absolute/path/to/vault [cursor|claude-code|codex|both|all]
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
 
-VAULT="$(resolve_vault "${1:?Usage: install-obsidian-mcp.sh /path/to/vault [cursor|claude-code|both]}")"
+VAULT="$(resolve_vault "${1:?Usage: install-obsidian-mcp.sh /path/to/vault [cursor|claude-code|codex|both|all]}")"
 TARGET="${2:-both}"
 
 NPX="$(command -v npx || true)"
@@ -97,10 +98,29 @@ install_mcp_claude() {
   info "  Claude Code: Obsidian MCP added at user scope. Verify: claude mcp get obsidian"
 }
 
+# --- Codex: CLI if present, else append a table to config.toml ---
+install_mcp_codex() {
+  local cfg="${CODEX_HOME:-$HOME/.codex}/config.toml"
+  if command -v codex >/dev/null 2>&1; then
+    codex mcp remove obsidian >/dev/null 2>&1 || true
+    codex mcp add obsidian -- "$NPX" "${MCP_ARGS[@]}"
+    info "  Codex: Obsidian MCP added. Verify: codex mcp list"
+  elif grep -q '^\[mcp_servers\.obsidian\]' "$cfg" 2>/dev/null; then
+    info "  Codex: [mcp_servers.obsidian] already in $cfg, left as is (check its vault path)."
+  else
+    mkdir -p "$(dirname "$cfg")"
+    [ -f "$cfg" ] && cp "$cfg" "$cfg.bak"
+    # JSON string escaping is valid TOML basic-string syntax.
+    python3 -c 'import json,sys; c,n,v=sys.argv[1:]; q=json.dumps; open(c,"a").write("\n[mcp_servers.obsidian]\ncommand = %s\nargs = [%s, %s, %s]\n" % (q(n), q("-y"), q("@bitbonsai/mcpvault@latest"), q(v)))' "$cfg" "$NPX" "$VAULT"
+    info "  Codex: Obsidian MCP added to $cfg"
+  fi
+}
+
 case "$TARGET" in
   cursor)      install_mcp_cursor ;;
   claude-code) install_mcp_claude ;;
-  both)
+  codex)       install_mcp_codex ;;
+  both|all)
     # Only touch Cursor if it's actually present — don't create a stray ~/.cursor.
     if [ -d "$HOME/.cursor" ] || has_cursor_cli; then
       install_mcp_cursor
@@ -108,8 +128,11 @@ case "$TARGET" in
       info "  Cursor not detected — skipping ~/.cursor/mcp.json."
     fi
     install_mcp_claude
+    if [ -d "${CODEX_HOME:-$HOME/.codex}" ] || command -v codex >/dev/null 2>&1; then
+      install_mcp_codex
+    fi
     ;;
-  *)           die "Unknown target: $TARGET (use cursor | claude-code | both)" ;;
+  *)           die "Unknown target: $TARGET (use cursor | claude-code | codex | both | all)" ;;
 esac
 
 echo

@@ -1,0 +1,13 @@
+# Build output (claude.ai skill zips)
+dist/
+
+# Local machine and editor files
+.DS_Store
+.claude/settings.local.json
+CLAUDE.local.md
+.idea/
+.vscode/
+
+# Backups written by the installers
+*.bak
+*.bak-*
